@@ -20,10 +20,10 @@ constexpr double pi() { return M_PI; }
 double deg2rad(double x) { return x * pi() / 180; }
 double rad2deg(double x) { return x * 180 / pi(); }
 
-// Checks if the SocketIO event has JSON data.
-// If there is data the JSON object in string format will be returned,
-// else the empty string "" will be returned.
 string hasData(string s) {
+  // Checks if the SocketIO event has JSON data.
+  // If there is data the JSON object in string format will be returned,
+  // else the empty string "" will be returned.
   auto found_null = s.find("null");
   auto b1 = s.find_first_of("[");
   auto b2 = s.find_first_of("}");
@@ -35,13 +35,11 @@ string hasData(string s) {
   return "";
 }
 
-double distance(double x1, double y1, double x2, double y2)
-{
+double distance(double x1, double y1, double x2, double y2) {
 	return sqrt((x2-x1)*(x2-x1)+(y2-y1)*(y2-y1));
 }
 
-int ClosestWaypoint(double x, double y, const vector<double> &maps_x, const vector<double> &maps_y)
-{
+int ClosestWaypoint(double x, double y, const vector<double> &maps_x, const vector<double> &maps_y) {
 
 	double closestLen = 100000; //large number
 	int closestWaypoint = 0;
@@ -63,8 +61,7 @@ int ClosestWaypoint(double x, double y, const vector<double> &maps_x, const vect
 
 }
 
-int NextWaypoint(double x, double y, double theta, const vector<double> &maps_x, const vector<double> &maps_y)
-{
+int NextWaypoint(double x, double y, double theta, const vector<double> &maps_x, const vector<double> &maps_y) {
 
 	int closestWaypoint = ClosestWaypoint(x,y,maps_x,maps_y);
 
@@ -88,9 +85,8 @@ int NextWaypoint(double x, double y, double theta, const vector<double> &maps_x,
   return closestWaypoint;
 }
 
-// Transform from Cartesian x,y coordinates to Frenet s,d coordinates
-vector<double> getFrenet(double x, double y, double theta, const vector<double> &maps_x, const vector<double> &maps_y)
-{
+vector<double> getFrenet(double x, double y, double theta, const vector<double> &maps_x, const vector<double> &maps_y) {
+  // Transform from Cartesian x,y coordinates to Frenet s,d coordinates
 	int next_wp = NextWaypoint(x,y, theta, maps_x,maps_y);
 
 	int prev_wp;
@@ -137,9 +133,8 @@ vector<double> getFrenet(double x, double y, double theta, const vector<double> 
 
 }
 
-// Transform from Frenet s,d coordinates to Cartesian x,y
-vector<double> getXY(double s, double d, const vector<double> &maps_s, const vector<double> &maps_x, const vector<double> &maps_y)
-{
+vector<double> getXY(double s, double d, const vector<double> &maps_s, const vector<double> &maps_x, const vector<double> &maps_y) {
+  // Transform from Frenet s,d coordinates to Cartesian x,y
 	int prev_wp = -1;
 
 	while(s > maps_s[prev_wp+1] && (prev_wp < (int)(maps_s.size()-1) ))
@@ -166,10 +161,14 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 }
 
 int lane = 1;
-double ref_vel = 0.0; //closest speed limit in mph
-bool too_close = false;
+double ref_vel = 0.0;
+bool too_close = false; // flag to check if the ego vehicle is too close to other vehicles
+bool critical = false;
 
-int main() {
+int l_lane, m_lane, r_lane;
+
+int main()
+{
   uWS::Hub h;
 
   // Load up map values for waypoint's x,y,s and d normalized normal vectors
@@ -224,7 +223,6 @@ int main() {
 
         if (event == "telemetry") {
           // j[1] is the data JSON object
-
         	// Main car's localization Data
           	double car_x = j[1]["x"];
           	double car_y = j[1]["y"];
@@ -232,73 +230,109 @@ int main() {
           	double car_d = j[1]["d"];
           	double car_yaw = j[1]["yaw"];
           	double car_speed = j[1]["speed"];
-
           	// Previous path data given to the Planner
           	auto previous_path_x = j[1]["previous_path_x"];
           	auto previous_path_y = j[1]["previous_path_y"];
           	// Previous path's end s and d values
           	double end_path_s = j[1]["end_path_s"];
           	double end_path_d = j[1]["end_path_d"];
-
           	// Sensor Fusion Data, a list of all other cars on the same side of the road.
           	auto sensor_fusion = j[1]["sensor_fusion"];
-
           	json msgJson;
 
-            int prev_size = previous_path_x.size();
-          	vector<double> next_x_vals;
-          	vector<double> next_y_vals;
+// TODO: define a path made up of (x,y) points that the car will visit
+// sequentially every .02 seconds
 //##############################################################################
-// sensor fusion
-            // if there are points
+            vector<double> next_x_vals;
+            vector<double> next_y_vals;
+            int prev_size = previous_path_x.size();
+
             if(prev_size>0)
             {
               car_s = end_path_s;
             }
-
-            // finding ref_v
+//---------------------Sensor fusion--------------------------------------------
+            // cout << sensor_fusion.size() << "\n";
+            l_lane = m_lane = r_lane = 0;
+            too_close = false;
             for (int i=0; i<sensor_fusion.size(); i++)
             {
-              float d = sensor_fusion[i][6];  // ith cars d (which is 6th pos)
-              if(d<(2+4*lane+2) && d>(2+4*lane-2))
+              float d = sensor_fusion[i][6];  // ith cars frenet - d
+              // filter cars in the same lane as ego car
+              if (d<(2+4*lane+2) && d>(2+4*lane-2))
               {
                 double vx = sensor_fusion[i][3];
                 double vy = sensor_fusion[i][4];
-                double check_speed = sqrt(vx*vx+vy*vy);
-                double check_car_s = sensor_fusion[i][5]; // s value of car
+                double check_speed = sqrt(vx*vx+vy*vy); // agent car's current speed
 
-                check_car_s+=((double)prev_size*.02*check_speed); // projecting s value to future
-                if((check_car_s>car_s) && ((check_car_s-car_s)<30))
+                double agent_s = sensor_fusion[i][5]; // s val of agent car
+                agent_s+=((double)prev_size*.02*check_speed);
+                // check agent cars proximity with ego car
+                if(agent_s>car_s && (agent_s-car_s)<35)
                 {
-                    // ref_vel=29.5;
-                    too_close=true;
-                    // shift lane
-                    if(lane>0)
-                    {
-                      lane=0;
-                    }
-                }
-                else
-                {
-                  too_close=false;
+                  too_close=true;
+                  if(agent_s>car_s && (agent_s-car_s)<5)
+                  {
+                    cout << "!!!Collision Ahead!!!";
+                    ref_vel = sensor_fusion[i][5];
+                  }
                 }
               }
+                double agent_x = sensor_fusion[i][1];
+                double agent_y = sensor_fusion[i][2];
+                double car_dist = distance(car_x, car_y, agent_x, agent_y);
+                if (car_dist<30)
+                {
+                    if(d>0 && d<4)
+                    {
+                      l_lane++;
+                    }
+                    if(d>4 && d<8)
+                    {
+                      m_lane++;
+                    }
+                    if(d>8 && d<12)
+                    {
+                      r_lane++;
+                    }
+                }
             }
-
-//##############################################################################
-//speed control
+            cout << "|| " << l_lane << " || " << m_lane << " || " << r_lane << " ||\n";
+//------------------------------------------------------------------------------
+//------------------------Speed control-----------------------------------------
+            if(too_close && car_speed>0)
+            {
+              ref_vel -= .5;
+            }
+            else if(ref_vel<49.5 && not too_close)
+            {
+              ref_vel += .4;
+            }
+//------------------------------------------------------------------------------
+//------------------------Switch lane-------------------------------------------
             if(too_close)
             {
-              ref_vel -= .224;
-            }
-            else if(ref_vel<49.5)
-            {
-              ref_vel += .224;
-            }
+              switch (lane) {
+                case 0:
+                if(m_lane==0)
+                  lane=1;
+                break;
 
-            cout << ref_vel << "\t" << too_close << "\n";
-//##############################################################################
-// smooth path.
+                case 1:
+                if(r_lane==0)
+                  lane=2;
+                else if(l_lane==0)
+                  lane=0;
+                break;
+
+                case 2:
+                if(m_lane==0)
+                  lane=1;
+                break;
+              }
+            }
+//------------------------------------------------------------------------------
+//--------------------------Spline path gen-------------------------------------
             vector<double> ptsx;
             vector<double> ptsy;
 
@@ -354,7 +388,7 @@ int main() {
               ptsy[i] = (shift_x*sin(0-ref_yaw) + shift_y*cos(0-ref_yaw));
             }
 
-            // create a spline
+            // create a spline obj
             tk::spline s;
             // set x, y points to the spline
             s.set_points(ptsx, ptsy);
@@ -392,10 +426,8 @@ int main() {
               next_x_vals.push_back(x_point);
               next_y_vals.push_back(y_point);
             }
-
+//------------------------------------------------------------------------------
 //##############################################################################
-
-          	// TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
           	msgJson["next_x"] = next_x_vals;
           	msgJson["next_y"] = next_y_vals;
 
@@ -405,7 +437,9 @@ int main() {
           	ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
 
         }
-      } else {
+      }
+      else
+      {
         // Manual driving
         std::string msg = "42[\"manual\",{}]";
         ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
@@ -413,6 +447,8 @@ int main() {
     }
   });
 
+//##############################################################################
+//##############################################################################
   // We don't need this since we're not using HTTP but if it's removed the
   // program
   // doesn't compile :-(
