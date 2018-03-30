@@ -46,6 +46,8 @@ The car is also expected to reach the destination with minimum time while meetin
 ---
 # Discussion
 
+<iframe src='//gifs.com/embed/path-planning-udacity-project-ZVo6N8' frameborder='0' scrolling='no' width='1280px' height='652px' style='-webkit-backface-visibility: hidden;-webkit-transform: scale(1);' ></iframe>
+
 ---
 # Result
 1. The code complies with cmake.   
