@@ -2,7 +2,6 @@
 Project done as part of the Self-Driving Car Engineer Nanodegree Program.    
 Read more here : [Udacity](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013).
 
----
 ### Simulator.
 Project requires the following open source simulator : [link](https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2)
 
@@ -12,7 +11,6 @@ Project requires the following open source simulator : [link](https://github.com
 3. Compile: `cmake .. && make`
 4. Run it: `./path_planning`.
 
----
 ## Dependencies
 
 * cmake >= 3.5
@@ -77,6 +75,7 @@ Two logics are implemented at this point :
    * Spline generated paths are guaranteed to be continous at merging points and they also have continous first and second where they join assuring a very smooth jerk free motion.
  * The spline control points were selected to be 3, and they were spread at a distance of 30 meaters each.`main.cpp [line 371]`
  * Using Frenet coordinates proved to be extremely beneficial as the longitudal motion <b>s</b> can be easily represented as <i>current s point in the Frenet coordinate plus a desired constant distance</i>. And the lateral point is a <i>constant <b>d</b> corrensponding to the center of the current lane</i>.
+ 
 ---
 # Result
 1. The code complies with cmake.   
