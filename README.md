@@ -55,13 +55,15 @@ Two logics are implemented at this point :
 <b>2. Speed Control</b> `main.cpp [line 303-311]`    
  * The velocity of the car is initially set to zero, and it is incremented in steps of 0.4 as long as <i>the car is below the
  speed limit and there are no cars directly ahead in collision range.</i>   
- * The velocity of the car is decremented by 0.5 if there is a car ahead. There is a further collision avoidance routine which would switch the speed of the ego car to that of the car directly ahead if the space between them are below 5m `main.cpp [line 276]`.    
-<br>
-<b>3. Switch lane</b> `main.cpp [line 314-334]`   
-![lane change](https://github.com/askmuhsin/path-planning/blob/master/images/lane_change.gif)
-<br>
-<b>4. Use spline to generate trajectory</b> `main.cpp [line 303-311]`
-<br>
+ * The velocity of the car is decremented by 0.5 if there is a car ahead. There is a further collision avoidance routine which would switch the speed of the ego car to that of the car directly ahead if the space between them are below 5m `main.cpp [line 276]`.         
+<br>     
+<b>3. Switch lane</b> `main.cpp [line 314-334]`     
+
+![lane change](https://github.com/askmuhsin/path-planning/blob/master/images/lane_change.gif)     
+
+<br>           
+<b>4. Use spline to generate trajectory</b> `main.cpp [line 303-311]`     
+<br>          
 
 ---
 # Result
