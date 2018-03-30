@@ -46,7 +46,7 @@ The car is also expected to reach the destination with minimum time while meetin
 ---
 # Discussion
 
-![lane change](https://j.gifs.com/ZVo6N8.gif)
+![lane change](https://github.com/askmuhsin/path-planning/blob/master/images/lane_change.gif)
 
 ---
 # Result
