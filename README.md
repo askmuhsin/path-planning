@@ -45,7 +45,12 @@ The car is also expected to reach the destination with minimum time while meetin
 
 ---
 # Discussion
-
+The project code has been divided into four sequential parts   
+<b>1. Sensor fusion :</b> `main.cpp [line 253]`    
+Here the data from the cars sensor fusion module is read.   
+Two logics are implemented at this point :
+ * <i>Detect if there are any cars directly ahead of ego car in 35m. If so turn the `too_close` flag `true`.</i>    
+ * <i>Identify all cars ahead and behind the ego car in all lanes within a set distance and classify them by the lane numbers they belong to. Three counters are used for this `l_lane, m_lane, r_lane`, corresponding to left, middle and right lanes respectively.</i>     
 ![lane change](https://github.com/askmuhsin/path-planning/blob/master/images/lane_change.gif)
 
 ---
@@ -55,5 +60,5 @@ The car is also expected to reach the destination with minimum time while meetin
 3. At all times the max acceleration and jerk is kept in acceptable range.   
 4. The car changes lanes when ever it is feasible and necessary.   
 
-Wath full lap here :    
+Watch full lap here :    
 [![path_planner_image](https://github.com/askmuhsin/path-planning/blob/master/images/thumbnail.png)](https://www.youtube.com/watch?v=E69RmCp4i3Y "Path planner")
