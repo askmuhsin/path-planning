@@ -46,12 +46,22 @@ The car is also expected to reach the destination with minimum time while meetin
 ---
 # Discussion
 The project code has been divided into four sequential parts   
-<b>1. Sensor fusion :</b> `main.cpp [line 253]`    
+<b>1. Sensor fusion :</b> `main.cpp [line 253-301]`    
 Here the data from the cars sensor fusion module is read.   
 Two logics are implemented at this point :
- * <i>Detect if there are any cars directly ahead of ego car in 35m. If so turn the `too_close` flag `true`.</i>    
- * <i>Identify all cars ahead and behind the ego car in all lanes within a set distance and classify them by the lane numbers they belong to. Three counters are used for this `l_lane, m_lane, r_lane`, corresponding to left, middle and right lanes respectively.</i>     
+ * Detect if there are any cars directly ahead of ego car in 35m. If so turn the `too_close` flag `true`.    
+ * Identify all cars ahead and behind the ego car in all lanes within a set distance and classify them by the lane numbers they belong to. Three counters are used for this `l_lane, m_lane, r_lane`, corresponding to left, middle and right lanes respectively.     
+<br>
+<b>2. Speed Control</b> `main.cpp [line 303-311]`    
+ * The velocity of the car is initially set to zero, and it is incremented in steps of 0.4 as long as <i>the car is below the
+ speed limit and there are no cars directly ahead in collision range.</i>   
+ * The velocity of the car is decremented by 0.5 if there is a car ahead. There is a further collision avoidance routine which would switch the speed of the ego car to that of the car directly ahead if the space between them are below 5m `main.cpp [line 276]`.    
+<br>
+<b>3. Switch lane</b> `main.cpp [line 314-334]`   
 ![lane change](https://github.com/askmuhsin/path-planning/blob/master/images/lane_change.gif)
+<br>
+<b>4. Use spline to generate trajectory</b> `main.cpp [line 303-311]`
+<br>
 
 ---
 # Result
