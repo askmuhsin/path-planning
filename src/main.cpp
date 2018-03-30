@@ -160,10 +160,9 @@ vector<double> getXY(double s, double d, const vector<double> &maps_s, const vec
 
 }
 
-int lane = 1;
+int lane = 1; // starting lane
 double ref_vel = 0.0;
 bool too_close = false; // flag to check if the ego vehicle is too close to other vehicles
-bool critical = false;
 
 int l_lane, m_lane, r_lane;
 
@@ -278,6 +277,8 @@ int main()
                   }
                 }
               }
+              // identify all nearby cars using euclidean distance and cantegorize
+              // them by their lanes.
                 double agent_x = sensor_fusion[i][1];
                 double agent_y = sensor_fusion[i][2];
                 double car_dist = distance(car_x, car_y, agent_x, agent_y);
