@@ -62,16 +62,21 @@ Two logics are implemented at this point :
 <br/>  
 
 <b>3. Switch lane</b> `main.cpp [line 314-334]`     
-The switch lane checks the flag `too_close`, if there is a car ahead going slow, it will get ready for lane change. This is done using a `switch` statement. If the car is in the lane 0 it can change to lane 2, if the car is in lane 1 it can either change to lane 0 or 2, and finally if the car is in lane 2 it can change to lane 1.    
-Before initializing the lane maneuver the car checks if its safe to perform. This is done using the data from the variables `l_lane, m_lane, r_lane`. The lane change has to consider future position of the cars. There are two scenarios to consider, one the car lagging could suddenly brake, or the car leading could suddenly reduce the speed. By taking into consideration the max speed limit (50mph), it became clear that it would be safe to swith lane when there are no cars 15m ahead and behind of the ego car (in the lane to which the ego car is switching). This logic has been implemented on `main.cpp [line 285]`.   
-This information is also printed on to the terminal. It shows the number of collision potential cars in a given lane.     
-
+ * The switch lane checks the flag `too_close`, if there is a car ahead going slow, it will get ready for lane change. This is done using a `switch` statement. If the car is in the lane 0 it can change to lane 2, if the car is in lane 1 it can either change to lane 0 or 2, and finally if the car is in lane 2 it can change to lane 1.    
+ * Before initializing the lane maneuver the car checks if its safe to perform. This is done using the data from the variables `l_lane, m_lane, r_lane`. The lane change has to consider future position of the cars. There are two scenarios to consider, 1. the car lagging could suddenly increase speed, or the car leading could suddenly reduce the speed. By taking into consideration the max speed limit (50mph), it became clear that it would be safe to swith lane when there are no cars 15m ahead and behind (in the lane to which the ego car is switching). This logic has been implemented on `main.cpp [line 285]`.   
+ * This information is also printed on to the terminal. It shows the number of collision potential cars in a given lane.     
+ 
 ![lane change](https://github.com/askmuhsin/path-planning/blob/master/images/lane_change.gif)     
 
 <br/>    
 
-<b>4. Use spline to generate trajectory</b> `main.cpp [line 303-311]`     
-
+<b>4. Use spline to generate trajectory</b> `main.cpp [line 303-311]`    
+ * For a smooth trajectory generation Spline interpolation in the Frenet coordinate was performed.
+ * Spline interpolation was chosen because:
+   * An open source spline generation library for C++ was easily available.
+   * Spline generated paths are guaranteed to be continous at merging points and they also have continous first and second where they join assuring a very smooth jerk free motion.
+ * The spline control points were selected to be 3, and they were spread at a distance of 30 meaters each.`main.cpp [line 371]`
+ * Using Frenet coordinates proved to be extremely beneficial as the longitudal motion <b>s</b> can be easily represented as <i>current s point in the Frenet coordinate plus a desired constant distance</i>. And the lateral point is a <i>constant <b>d</b> corrensponding to the center of the current lane</i>.
 ---
 # Result
 1. The code complies with cmake.   
