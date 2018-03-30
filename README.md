@@ -48,7 +48,10 @@ The car is also expected to reach the destination with minimum time while meetin
 
 ---
 # Result
+1. The code complies with cmake.   
+2. The car is able to drive multiple laps without any incidents, including collisions or breaking speed limit.   
+3. At all times the max acceleration and jerk is kept in acceptable range.   
+4. The car changes lanes when ever it is feasible and necessary.   
 
-
-
-.
+Wath full lap here :    
+[![path_planner_image](https://github.com/askmuhsin/path-planning/blob/master/images/thumbnail.png)](https://www.youtube.com/watch?v=E69RmCp4i3Y "Path planner")
