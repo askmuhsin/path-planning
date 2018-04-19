@@ -1,7 +1,3 @@
-# CarND-Path-Planning-Project
-Project done as part of the Self-Driving Car Engineer Nanodegree Program.    
-Read more here : [Udacity](https://www.udacity.com/course/self-driving-car-engineer-nanodegree--nd013).
-
 ### Simulator.
 Project requires the following open source simulator : [link](https://github.com/udacity/self-driving-car-sim/releases/tag/T3_v1.2)
 
